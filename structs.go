@@ -112,6 +112,10 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			name = tagName
 		}
 
+		if tagOpts.Has("omitforce") {
+			continue
+		}
+
 		// if the value is a zero value and the field is marked as omitempty do
 		// not include
 		if tagOpts.Has("omitempty") {
@@ -197,6 +201,10 @@ func (s *Struct) Values() []interface{} {
 		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
+
+		if tagOpts.Has("omitforce") {
+			continue
+		}
 
 		// if the value is a zero value and the field is marked as omitempty do
 		// not include
