@@ -3,15 +3,19 @@ package structs
 
 import (
 	"fmt"
+	"time"
 
 	"reflect"
 )
+
+var timeKind = reflect.TypeOf(time.Time{}).Kind()
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
 	// a more granular to tweak certain structs. Lookup the necessary functions
 	// for more info.
 	DefaultTagName = "json" // struct's field default tag name
+	TimeFormat     = ""
 )
 
 // Struct encapsulates a struct type to provide several high level functions
@@ -20,6 +24,10 @@ type Struct struct {
 	raw     interface{}
 	value   reflect.Value
 	TagName string
+}
+
+func CastTimeFormat(timeFormat string) {
+	TimeFormat = timeFormat
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
@@ -115,10 +123,11 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			}
 		}
 
+		v := reflect.ValueOf(val.Interface())
+
 		if !tagOpts.Has("omitnested") {
 			finalVal = s.nested(val)
 
-			v := reflect.ValueOf(val.Interface())
 			if v.Kind() == reflect.Ptr {
 				v = v.Elem()
 			}
@@ -135,6 +144,14 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			s, ok := val.Interface().(fmt.Stringer)
 			if ok {
 				out[name] = s.String()
+			}
+			continue
+		}
+
+		if TimeFormat != "" && v.Kind() == timeKind {
+			s, ok := val.Interface().(time.Time)
+			if ok {
+				out[name] = s.Format(TimeFormat)
 			}
 			continue
 		}

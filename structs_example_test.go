@@ -58,9 +58,9 @@ func ExampleMap() {
 func ExampleMap_tags() {
 	// Custom tags can change the map keys instead of using the fields name
 	type Server struct {
-		Name    string `structs:"server_name"`
-		ID      int32  `structs:"server_id"`
-		Enabled bool   `structs:"enabled"`
+		Name    string `json:"server_name"`
+		ID      int32  `json:"server_id"`
+		Enabled bool   `json:"enabled"`
 	}
 
 	s := &Server{
@@ -85,9 +85,9 @@ func ExampleMap_omitNested() {
 	// By default field with struct types are processed too. We can stop
 	// processing them via "omitnested" tag option.
 	type Server struct {
-		Name string    `structs:"server_name"`
-		ID   int32     `structs:"server_id"`
-		Time time.Time `structs:"time,omitnested"` // do not convert to map[string]interface{}
+		Name string    `json:"server_name"`
+		ID   int32     `json:"server_id"`
+		Time time.Time `json:"time,omitnested"` // do not convert to map[string]interface{}
 	}
 
 	const shortForm = "2006-Jan-02"
@@ -115,8 +115,8 @@ func ExampleMap_omitEmpty() {
 	// By default field with struct types of zero values are processed too. We
 	// can stop processing them via "omitempty" tag option.
 	type Server struct {
-		Name     string `structs:",omitempty"`
-		ID       int32  `structs:"server_id,omitempty"`
+		Name     string `json:",omitempty"`
+		ID       int32  `json:"server_id,omitempty"`
 		Location string
 	}
 
@@ -157,8 +157,8 @@ func ExampleValues_omitEmpty() {
 	// By default field with struct types of zero values are processed too. We
 	// can stop processing them via "omitempty" tag option.
 	type Server struct {
-		Name     string `structs:",omitempty"`
-		ID       int32  `structs:"server_id,omitempty"`
+		Name     string `json:",omitempty"`
+		ID       int32  `json:"server_id,omitempty"`
 		Location string
 	}
 
@@ -185,7 +185,7 @@ func ExampleValues_tags() {
 		Name     string
 		ID       int32
 		Enabled  bool
-		Location Location `structs:"-"` // values from location are not included anymore
+		Location Location `json:"-"` // values from location are not included anymore
 	}
 
 	s := &Server{
@@ -326,7 +326,7 @@ func ExampleHasZero() {
 		Name         string
 		LastAccessed time.Time
 		Number       int
-		Enabled      bool `structs:"-"`
+		Enabled      bool `json:"-"`
 	}
 
 	// Name and Number is not initialized.

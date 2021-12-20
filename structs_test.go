@@ -85,9 +85,9 @@ func TestMap(t *testing.T) {
 
 func TestMap_Tag(t *testing.T) {
 	var T = struct {
-		A string `structs:"x"`
-		B int    `structs:"y"`
-		C bool   `structs:"z"`
+		A string `json:"x"`
+		B int    `json:"y"`
+		C bool   `json:"z"`
 	}{
 		A: "a-value",
 		B: 2,
@@ -192,8 +192,8 @@ func TestMap_MultipleCustomTag(t *testing.T) {
 func TestMap_OmitEmpty(t *testing.T) {
 	type A struct {
 		Name  string
-		Value string    `structs:",omitempty"`
-		Time  time.Time `structs:",omitempty"`
+		Value string    `json:",omitempty"`
+		Time  time.Time `json:",omitempty"`
 	}
 	a := A{}
 
@@ -214,7 +214,7 @@ func TestMap_OmitNested(t *testing.T) {
 	type A struct {
 		Name  string
 		Value string
-		Time  time.Time `structs:",omitnested"`
+		Time  time.Time `json:",omitnested"`
 	}
 	a := A{Time: time.Now()}
 
@@ -405,7 +405,7 @@ func TestMap_NestedMapWithSliceIntValues(t *testing.T) {
 
 func TestMap_NestedMapWithSliceStructValues(t *testing.T) {
 	type address struct {
-		Country string `structs:"country"`
+		Country string `json:"country"`
 	}
 
 	type B struct {
@@ -452,12 +452,12 @@ func TestMap_NestedMapWithSliceStructValues(t *testing.T) {
 
 func TestMap_NestedSliceWithStructValues(t *testing.T) {
 	type address struct {
-		Country string `structs:"customCountryName"`
+		Country string `json:"customCountryName"`
 	}
 
 	type person struct {
-		Name      string    `structs:"name"`
-		Addresses []address `structs:"addresses"`
+		Name      string    `json:"name"`
+		Addresses []address `json:"addresses"`
 	}
 
 	p := person{
@@ -481,12 +481,12 @@ func TestMap_NestedSliceWithStructValues(t *testing.T) {
 
 func TestMap_NestedSliceWithPointerOfStructValues(t *testing.T) {
 	type address struct {
-		Country string `structs:"customCountryName"`
+		Country string `json:"customCountryName"`
 	}
 
 	type person struct {
-		Name      string     `structs:"name"`
-		Addresses []*address `structs:"addresses"`
+		Name      string     `json:"name"`
+		Addresses []*address `json:"addresses"`
 	}
 
 	p := person{
@@ -510,8 +510,8 @@ func TestMap_NestedSliceWithPointerOfStructValues(t *testing.T) {
 
 func TestMap_NestedSliceWithIntValues(t *testing.T) {
 	type person struct {
-		Name  string `structs:"name"`
-		Ports []int  `structs:"ports"`
+		Name  string `json:"name"`
+		Ports []int  `json:"ports"`
 	}
 
 	p := person{
@@ -565,7 +565,7 @@ func TestMap_Flatnested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A `structs:",flatten"`
+		A `json:",flatten"`
 		C int
 	}
 	b := &B{C: 123}
@@ -592,7 +592,7 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A    `structs:",flatten"`
+		A    `json:",flatten"`
 		Name string
 		C    int
 	}
@@ -624,6 +624,25 @@ func TestMap_TimeField(t *testing.T) {
 	if !ok {
 		t.Error("Time field must be final")
 	}
+}
+
+func TestMap_TimeFieldStrFormat(t *testing.T) {
+	CastTimeFormat("20060102T150405")
+	type A struct {
+		CreatedAt time.Time
+	}
+
+	a := &A{
+		CreatedAt: time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
+	}
+	m := Map(a)
+
+	expectedMap := map[string]interface{}{"CreatedAt": "20091117T203458"}
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+
+	CastTimeFormat("")
 }
 
 func TestFillMap(t *testing.T) {
@@ -732,7 +751,7 @@ func TestValues(t *testing.T) {
 func TestValues_OmitEmpty(t *testing.T) {
 	type A struct {
 		Name  string
-		Value int `structs:",omitempty"`
+		Value int `json:",omitempty"`
 	}
 
 	a := A{Name: "example"}
@@ -759,7 +778,7 @@ func TestValues_OmitNested(t *testing.T) {
 	}
 
 	type B struct {
-		A A `structs:",omitnested"`
+		A A `json:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
@@ -923,7 +942,7 @@ func TestFields_OmitNested(t *testing.T) {
 	type B struct {
 		A      A
 		C      int
-		Value  string `structs:"-"`
+		Value  string `json:"-"`
 		Number int
 	}
 	b := &B{A: a, C: 123}
@@ -985,7 +1004,7 @@ func TestIsZero(t *testing.T) {
 	var T = struct {
 		A string
 		B int
-		C bool `structs:"-"`
+		C bool `json:"-"`
 		D []string
 	}{}
 
@@ -1028,7 +1047,7 @@ func TestIsZero_OmitNested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structs:",omitnested"`
+		A A `json:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
@@ -1109,7 +1128,7 @@ func TestHasZero(t *testing.T) {
 	var T = struct {
 		A string
 		B int
-		C bool `structs:"-"`
+		C bool `json:"-"`
 		D []string
 	}{
 		A: "a-value",
@@ -1155,7 +1174,7 @@ func TestHasZero_OmitNested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structs:",omitnested"`
+		A A `json:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
@@ -1429,10 +1448,10 @@ func TestPointer2Pointer(t *testing.T) {
 
 func TestMap_InterfaceTypeWithMapValue(t *testing.T) {
 	type A struct {
-		Name    string      `structs:"name"`
-		IP      string      `structs:"ip"`
-		Query   string      `structs:"query"`
-		Payload interface{} `structs:"payload"`
+		Name    string      `json:"name"`
+		IP      string      `json:"ip"`
+		Query   string      `json:"query"`
+		Payload interface{} `json:"payload"`
 	}
 
 	a := A{
