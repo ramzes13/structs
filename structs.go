@@ -11,7 +11,7 @@ var (
 	// DefaultTagName is the default tag name for struct fields which provides
 	// a more granular to tweak certain structs. Lookup the necessary functions
 	// for more info.
-	DefaultTagName = "structs" // struct's field default tag name
+	DefaultTagName = "json" // struct's field default tag name
 )
 
 // Struct encapsulates a struct type to provide several high level functions
