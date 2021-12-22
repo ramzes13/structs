@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"testing"
@@ -1487,4 +1488,23 @@ func TestMap_InterfaceTypeWithMapValue(t *testing.T) {
 	}()
 
 	_ = Map(a)
+}
+
+func TestMap_SqlNullString(t *testing.T) {
+	type A struct {
+		Name sql.NullString `json:"name"`
+		IP   sql.NullString `json:"ip"`
+	}
+
+	a := A{
+		Name: sql.NullString{String: "Name", Valid: true},
+	}
+
+	m := Map(a)
+
+	expectedMap := map[string]interface{}{"name": "Name"}
+
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
 }

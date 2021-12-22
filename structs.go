@@ -2,6 +2,7 @@
 package structs
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 )
 
 var timeKind = reflect.TypeOf(time.Time{}).Kind()
+var nullStringKind = reflect.TypeOf(sql.NullString{}).Kind()
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -161,6 +163,14 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			s, ok := val.Interface().(time.Time)
 			if ok {
 				out[name] = s.Format(TimeFormat)
+			}
+			continue
+		}
+
+		if v.Kind() == nullStringKind {
+			s, ok := val.Interface().(sql.NullString)
+			if ok && s.Valid {
+				out[name] = s.String
 			}
 			continue
 		}
