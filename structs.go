@@ -116,6 +116,11 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			continue
 		}
 
+		if tagOpts.Has("rawnested") {
+			out[name] = val.Interface()
+			continue
+		}
+
 		// if the value is a zero value and the field is marked as omitempty do
 		// not include
 		if tagOpts.Has("omitempty") {
@@ -203,6 +208,11 @@ func (s *Struct) Values() []interface{} {
 		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
 
 		if tagOpts.Has("omitforce") {
+			continue
+		}
+
+		if tagOpts.Has("rawnested") {
+			t = append(t, val.Interface())
 			continue
 		}
 
