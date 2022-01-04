@@ -11,6 +11,7 @@ import (
 
 var timeKind = reflect.TypeOf(time.Time{}).Kind()
 var nullStringKind = reflect.TypeOf(sql.NullString{}).Kind()
+var nullInt64Kind = reflect.TypeOf(sql.NullInt64{}).Kind()
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -135,15 +136,37 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 		}
 
 		v := reflect.ValueOf(val.Interface())
+		vKind := v.Kind()
+
+		if TimeFormat != "" && v.Kind() == timeKind {
+			s, ok := val.Interface().(time.Time)
+			if ok {
+				out[name] = s.Format(TimeFormat)
+				continue
+			}
+		}
+
+		if s, ok := val.Interface().(sql.NullString); ok {
+			if s.Valid {
+				out[name] = s.String
+			}
+			continue
+		}
+
+		if s, ok := val.Interface().(sql.NullInt64); ok {
+			if s.Valid {
+				out[name] = s.Int64
+			}
+			continue
+		}
 
 		if !tagOpts.Has("omitnested") {
 			finalVal = s.nested(val)
-
-			if v.Kind() == reflect.Ptr {
+			if vKind == reflect.Ptr {
 				v = v.Elem()
 			}
 
-			switch v.Kind() {
+			switch vKind {
 			case reflect.Map, reflect.Struct:
 				isSubStruct = true
 			}
@@ -155,22 +178,6 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			s, ok := val.Interface().(fmt.Stringer)
 			if ok {
 				out[name] = s.String()
-			}
-			continue
-		}
-
-		if TimeFormat != "" && v.Kind() == timeKind {
-			s, ok := val.Interface().(time.Time)
-			if ok {
-				out[name] = s.Format(TimeFormat)
-			}
-			continue
-		}
-
-		if v.Kind() == nullStringKind {
-			s, ok := val.Interface().(sql.NullString)
-			if ok && s.Valid {
-				out[name] = s.String
 			}
 			continue
 		}
