@@ -147,6 +147,9 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 				}
 			}
 			continue
+		case "pgtype.UUID":
+			out[name] = val.Interface()
+			continue
 		case "time.Time":
 			if TimeFormat != "" {
 				s, ok := val.Interface().(time.Time)
