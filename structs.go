@@ -15,6 +15,7 @@ var (
 	// for more info.
 	DefaultTagName = "json" // struct's field default tag name
 	TimeFormat     = ""
+	RawStructs     = []string{}
 )
 
 // Struct encapsulates a struct type to provide several high level functions
@@ -114,7 +115,10 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			continue
 		}
 
-		if tagOpts.Has("rawnested") {
+		v := reflect.ValueOf(val.Interface())
+		typeName := v.Type().String()
+
+		if tagOpts.Has("rawnested") || contains(RawStructs, typeName) {
 			out[name] = val.Interface()
 			continue
 		}
@@ -130,9 +134,7 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			}
 		}
 
-		v := reflect.ValueOf(val.Interface())
-
-		switch v.Type().String() {
+		switch typeName {
 		case "sql.NullString":
 			if s, ok := val.Interface().(sql.NullString); ok {
 				if s.Valid {
@@ -146,9 +148,6 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 					out[name] = s.Int64
 				}
 			}
-			continue
-		case "pgtype.UUID":
-			out[name] = val.Interface()
 			continue
 		case "time.Time":
 			if TimeFormat != "" {
@@ -635,4 +634,14 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 	}
 
 	return finalVal
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
