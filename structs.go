@@ -108,9 +108,6 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			name = tagName
 		}
 
-		// fmt.Println(getType(field))
-		// fmt.Println(getType(val))
-
 		if tagOpts.Has("omitforce") {
 			continue
 		}
@@ -456,8 +453,10 @@ func (s *Struct) Name() string {
 // is a convenient helper method to avoid duplicate code in some of the
 // functions.
 func (s *Struct) structFields() []reflect.StructField {
-	t := s.value.Type()
+	return strctFields(s.value.Type(), s.TagName)
+}
 
+func strctFields(t reflect.Type, tagName string) []reflect.StructField {
 	var f []reflect.StructField
 
 	for i := 0; i < t.NumField(); i++ {
@@ -468,7 +467,7 @@ func (s *Struct) structFields() []reflect.StructField {
 		}
 
 		// don't check if it's omitted
-		if tag := field.Tag.Get(s.TagName); tag == "-" {
+		if tag := field.Tag.Get(tagName); tag == "-" {
 			continue
 		}
 
