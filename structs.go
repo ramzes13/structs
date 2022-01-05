@@ -9,10 +9,6 @@ import (
 	"reflect"
 )
 
-var timeKind = reflect.TypeOf(time.Time{}).Kind()
-var nullStringKind = reflect.TypeOf(sql.NullString{}).Kind()
-var nullInt64Kind = reflect.TypeOf(sql.NullInt64{}).Kind()
-
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
 	// a more granular to tweak certain structs. Lookup the necessary functions
@@ -27,10 +23,6 @@ type Struct struct {
 	raw     interface{}
 	value   reflect.Value
 	TagName string
-}
-
-func CastTimeFormat(timeFormat string) {
-	TimeFormat = timeFormat
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
@@ -115,6 +107,9 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			name = tagName
 		}
 
+		// fmt.Println(getType(field))
+		// fmt.Println(getType(val))
+
 		if tagOpts.Has("omitforce") {
 			continue
 		}
@@ -136,29 +131,33 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 		}
 
 		v := reflect.ValueOf(val.Interface())
-		vKind := v.Kind()
 
-		if TimeFormat != "" && v.Kind() == timeKind {
-			s, ok := val.Interface().(time.Time)
-			if ok {
-				out[name] = s.Format(TimeFormat)
+		switch v.Type().String() {
+		case "sql.NullString":
+			if s, ok := val.Interface().(sql.NullString); ok {
+				if s.Valid {
+					out[name] = s.String
+				}
+			}
+			continue
+		case "sql.NullInt64":
+			if s, ok := val.Interface().(sql.NullInt64); ok {
+				if s.Valid {
+					out[name] = s.Int64
+				}
+			}
+			continue
+		case "time.Time":
+			if TimeFormat != "" {
+				s, ok := val.Interface().(time.Time)
+				if ok {
+					out[name] = s.Format(TimeFormat)
+				}
 				continue
 			}
 		}
 
-		if s, ok := val.Interface().(sql.NullString); ok {
-			if s.Valid {
-				out[name] = s.String
-			}
-			continue
-		}
-
-		if s, ok := val.Interface().(sql.NullInt64); ok {
-			if s.Valid {
-				out[name] = s.Int64
-			}
-			continue
-		}
+		vKind := v.Kind()
 
 		if !tagOpts.Has("omitnested") {
 			finalVal = s.nested(val)

@@ -628,7 +628,7 @@ func TestMap_TimeField(t *testing.T) {
 }
 
 func TestMap_TimeFieldStrFormat(t *testing.T) {
-	CastTimeFormat("20060102T150405")
+	TimeFormat = "20060102T150405"
 	type A struct {
 		CreatedAt time.Time
 	}
@@ -643,7 +643,7 @@ func TestMap_TimeFieldStrFormat(t *testing.T) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
 
-	CastTimeFormat("")
+	TimeFormat = ""
 }
 
 func TestFillMap(t *testing.T) {
