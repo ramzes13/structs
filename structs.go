@@ -15,7 +15,7 @@ var (
 	// for more info.
 	DefaultTagName = "json" // struct's field default tag name
 	TimeFormat     = ""
-	RawStructs     = []string{}
+	RawStructs     = []string{"pgtype.UUID", "common.NullUuid"}
 )
 
 // Struct encapsulates a struct type to provide several high level functions
