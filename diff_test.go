@@ -26,6 +26,31 @@ func TestDiff_GetFields(t *testing.T) {
 	}
 }
 
+func TestDiff_OmitCompare(t *testing.T) {
+	type A struct {
+		Name sql.NullString `db:"name,omitcompare"`
+		IP   sql.NullString `db:"ip"`
+	}
+
+	a := A{
+		Name: sql.NullString{String: "Name", Valid: true},
+	}
+
+	b := A{
+		IP: sql.NullString{String: "IP", Valid: true},
+	}
+
+	m := GenerateDiff(a, b)
+
+	expectedMap := map[string]interface{}{
+		"ip": sql.NullString{String: "", Valid: false},
+	}
+
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+}
+
 func TestDiff_NotEqual(t *testing.T) {
 	type A struct {
 		Name sql.NullString `db:"name"`

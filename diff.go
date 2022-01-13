@@ -40,7 +40,11 @@ func GenerateDiff(s1, s2 interface{}) map[string]interface{} {
 
 		s1ValInterface := s1Val.Interface()
 		s2ValInterface := s2Val.Interface()
-		tagName, _ := parseTag(field.Tag.Get(DiffDefaultTagName))
+		tagName, tagOpts := parseTag(field.Tag.Get(DiffDefaultTagName))
+
+		if tagOpts.Has("omitcompare") {
+			continue
+		}
 
 		if tagName != "" {
 			name = tagName
