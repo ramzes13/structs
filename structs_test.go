@@ -1508,3 +1508,45 @@ func TestMap_SqlNullString(t *testing.T) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
 }
+
+func TestMap_NullBool(t *testing.T) {
+	type A struct {
+		A sql.NullBool `json:"a"`
+		B sql.NullBool `json:"b"`
+	}
+
+	a := A{
+		A: sql.NullBool{Bool: true, Valid: true},
+	}
+
+	m := Map(a)
+
+	expectedMap := map[string]interface{}{"a": true}
+
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+}
+
+func TestMap_NullTime(t *testing.T) {
+	type A struct {
+		A sql.NullTime `json:"a"`
+		B sql.NullTime `json:"b"`
+	}
+
+	layout := "2006-01-02T15:04:05.000Z"
+	str := "2014-11-12T11:45:26.371Z"
+	timeVal, _ := time.Parse(layout, str)
+
+	a := A{
+		A: sql.NullTime{Time: timeVal, Valid: true},
+	}
+
+	m := Map(a)
+
+	expectedMap := map[string]interface{}{"a": timeVal}
+
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+}

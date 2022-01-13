@@ -15,7 +15,9 @@ var (
 	// for more info.
 	DefaultTagName = "json" // struct's field default tag name
 	TimeFormat     = ""
-	RawStructs     = []string{"pgtype.UUID", "common.NullUuid", "common.NullJSONB", "pgtype.JSONB", "decimal.NullDecimal"}
+	RawStructs     = []string{
+		"pgtype.UUID", "common.NullUuid", "common.NullJSONB", "pgtype.JSONB", "decimal.NullDecimal",
+	}
 )
 
 // Struct encapsulates a struct type to provide several high level functions
@@ -143,6 +145,20 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			if s, ok := val.Interface().(sql.NullInt64); ok {
 				if s.Valid {
 					out[name] = s.Int64
+				}
+			}
+			continue
+		case "sql.NullBool":
+			if s, ok := val.Interface().(sql.NullBool); ok {
+				if s.Valid {
+					out[name] = s.Bool
+				}
+			}
+			continue
+		case "sql.NullTime":
+			if s, ok := val.Interface().(sql.NullTime); ok {
+				if s.Valid {
+					out[name] = s.Time
 				}
 			}
 			continue
