@@ -81,36 +81,6 @@ func ExampleMap_tags() {
 
 }
 
-func ExampleMap_omitNested() {
-	// By default field with struct types are processed too. We can stop
-	// processing them via "omitnested" tag option.
-	type Server struct {
-		Name string    `json:"server_name"`
-		ID   int32     `json:"server_id"`
-		Time time.Time `json:"time,omitnested"` // do not convert to map[string]interface{}
-	}
-
-	const shortForm = "2006-Jan-02"
-	t, _ := time.Parse("2006-Jan-02", "2013-Feb-03")
-
-	s := &Server{
-		Name: "Zeynep",
-		ID:   789012,
-		Time: t,
-	}
-
-	m := Map(s)
-
-	// access them by the custom tags defined above
-	fmt.Printf("%v\n", m["server_name"])
-	fmt.Printf("%v\n", m["server_id"])
-	fmt.Printf("%v\n", m["time"].(time.Time))
-	// Output:
-	// Zeynep
-	// 789012
-	// 2013-02-03 00:00:00 +0000 UTC
-}
-
 func ExampleMap_omitEmpty() {
 	// By default field with struct types of zero values are processed too. We
 	// can stop processing them via "omitempty" tag option.

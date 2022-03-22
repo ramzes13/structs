@@ -14,9 +14,8 @@ var (
 	// a more granular to tweak certain structs. Lookup the necessary functions
 	// for more info.
 	DefaultTagName = "json" // struct's field default tag name
-	TimeFormat     = ""
 	RawStructs     = []string{
-		"pgtype.UUID", "common.NullUuid", "common.NullJSONB", "pgtype.JSONB", "decimal.NullDecimal",
+		"pgtype.UUID", "common.NullUuid", "common.NullTime", "common.NullJSONB", "pgtype.JSONB", "decimal.NullDecimal",
 	}
 )
 
@@ -58,10 +57,7 @@ func New(s interface{}) *Struct {
 //   // Map will panic if Animal does not implement String().
 //   Field *Animal `structs:"field,string"`
 //
-// A tag value with the option of "flatten" used in a struct field is to flatten its fields
-// in the output map. Example:
-//
-//   // The FieldStruct's fields will be flattened into the output map.
+// A tag value with the option of "flatten" used in a struct field is to flattetime.Time
 //   FieldStruct time.Time `structs:",flatten"`
 //
 // A tag value with the option of "omitnested" stops iterating further if the type
@@ -163,13 +159,11 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			}
 			continue
 		case "time.Time":
-			if TimeFormat != "" {
-				s, ok := val.Interface().(time.Time)
-				if ok {
-					out[name] = s.Format(TimeFormat)
-				}
-				continue
+			s, ok := val.Interface().(time.Time)
+			if ok {
+				out[name] = s
 			}
+			continue
 		}
 
 		vKind := v.Kind()

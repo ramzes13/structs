@@ -211,37 +211,6 @@ func TestMap_OmitEmpty(t *testing.T) {
 	}
 }
 
-func TestMap_OmitNested(t *testing.T) {
-	type A struct {
-		Name  string
-		Value string
-		Time  time.Time `json:",omitnested"`
-	}
-	a := A{Time: time.Now()}
-
-	type B struct {
-		Desc string
-		A    A
-	}
-	b := &B{A: a}
-
-	m := Map(b)
-
-	in, ok := m["A"].(map[string]interface{})
-	if !ok {
-		t.Error("Map nested structs is not available in the map")
-	}
-
-	// should not happen
-	if _, ok := in["Time"].(map[string]interface{}); ok {
-		t.Error("Map nested struct should omit recursiving parsing of Time")
-	}
-
-	if _, ok := in["Time"].(time.Time); !ok {
-		t.Error("Map nested struct should stop parsing of Time at is current value")
-	}
-}
-
 func TestMap_Nested(t *testing.T) {
 	type A struct {
 		Name string
@@ -612,40 +581,6 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
 }
-
-func TestMap_TimeField(t *testing.T) {
-	type A struct {
-		CreatedAt time.Time
-	}
-
-	a := &A{CreatedAt: time.Now().UTC()}
-	m := Map(a)
-
-	_, ok := m["CreatedAt"].(time.Time)
-	if !ok {
-		t.Error("Time field must be final")
-	}
-}
-
-func TestMap_TimeFieldStrFormat(t *testing.T) {
-	TimeFormat = "20060102T150405"
-	type A struct {
-		CreatedAt time.Time
-	}
-
-	a := &A{
-		CreatedAt: time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
-	}
-	m := Map(a)
-
-	expectedMap := map[string]interface{}{"CreatedAt": "20091117T203458"}
-	if !reflect.DeepEqual(m, expectedMap) {
-		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
-	}
-
-	TimeFormat = ""
-}
-
 func TestFillMap(t *testing.T) {
 	var T = struct {
 		A string
